@@ -23,6 +23,7 @@ namespace WindowsFormsApp1
         public Form1()
         {
             DoubleBuffered = true;
+            Position = new Point(0, 0);
             InitializeComponent();
         }
 
@@ -42,16 +43,15 @@ namespace WindowsFormsApp1
             var unitedRegion = new Region(new Rectangle(0, 0, Width, Height));
 
             var translateMatrix = new Matrix();
-            translateMatrix.Translate(Width / 2 - 50 + Position.X, Height / 2 - 300 + Position.Y);
+            translateMatrix.Translate(Position.X - 50, Position.Y - 300);
             
             var rotationMatrix = new Matrix();
-            rotationMatrix.RotateAt(Angle, new PointF(Width / 2 + Position.X, Height / 2 + Position.Y));
+            rotationMatrix.RotateAt(Angle, new PointF(Position.X, Position.Y));
             
             path.Transform(translateMatrix);
             path.Transform(rotationMatrix);
             
             ellipsePath.Transform(translateMatrix);
-            ellipsePath.Transform(rotationMatrix);
             
             unitedRegion.Exclude(path);
             unitedRegion.Exclude(ellipsePath);
@@ -74,8 +74,8 @@ namespace WindowsFormsApp1
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            float x = e.X - (Width / 2 + Position.X);
-            float y = e.Y - (Height / 2 + Position.Y);
+            float x = e.X - Position.X;
+            float y = e.Y - Position.Y;
 
             Angle = (float) (Math.Atan2(y, x) * 180 / Math.PI) + 90;
             Invalidate();
