@@ -18,12 +18,12 @@ namespace WindowsFormsApp1
     public partial class Form1 : Form
     {
         public float Angle;
-        public Point Position;
+        public Point Position = new Point(0, 0);
+        public float ScaleFactor = 0.7f;
         
         public Form1()
         {
             DoubleBuffered = true;
-            Position = new Point(0, 0);
             InitializeComponent();
         }
 
@@ -41,23 +41,27 @@ namespace WindowsFormsApp1
             ellipsePath.AddEllipse(new Rectangle(new Point(50 - 100, 280 - 80), new Size(200, 200)));
             
             var unitedRegion = new Region(new Rectangle(0, 0, Width, Height));
-
+            
             var translateMatrix = new Matrix();
             translateMatrix.Translate(Position.X - 50, Position.Y - 300);
             
             var rotationMatrix = new Matrix();
             rotationMatrix.RotateAt(Angle, new PointF(Position.X, Position.Y));
             
-            path.Transform(translateMatrix);
-            path.Transform(rotationMatrix);
+            var scaleMatrix = new Matrix();
+            scaleMatrix.Scale(ScaleFactor, ScaleFactor);
             
-            ellipsePath.Transform(translateMatrix);
+            ApplyTransformMatrices(path, translateMatrix, rotationMatrix, scaleMatrix);
+            ApplyTransformMatrices(ellipsePath, translateMatrix, scaleMatrix);
             
             unitedRegion.Exclude(path);
             unitedRegion.Exclude(ellipsePath);
             
             e.Graphics.FillRegion(Brushes.Black, unitedRegion);
         }
+
+        private void ApplyTransformMatrices(GraphicsPath target, params Matrix[] matrices) =>
+            matrices.ToList().ForEach(target.Transform);
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
